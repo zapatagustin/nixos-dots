@@ -39,11 +39,21 @@
   };
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
+  services.xserver = {
+    enable = true;
+    libinput = {
+      enable = true;
 
-  # Enable the KDE Plasma Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+      # disabling mouse acceleration
+      mouse = {
+        accelProfile = "flat";
+      };
+  };
+  };
+
+  # Enable the Desktop Environment.
+  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.desktopManager.xfce.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
@@ -97,6 +107,9 @@
 
   # hyprland
   programs.hyprland.enable = true;
+  # Optional, hint electron apps to use wayland:
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
 
   # flakes and optimize storage
     nix.settings = {
@@ -113,6 +126,7 @@
   hardware = {
     bluetooth = {
         enable = true;
+        powerOnBoot = true;
         settings.General.Experimental = true;
     };
   };
@@ -128,13 +142,13 @@
   programs.kdeconnect.enable = true;
 
   # enable custom fonts
-  	fonts.fontDir.enable = true;
+  fonts.fontDir.enable = true;
 
   fonts = {
   	packages = with pkgs; [
 		jetbrains-mono
 		cascadia-code
- 	 	(nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" ]; })
+ 	 	(nerdfonts.override { fonts = [ "FiraCode" ]; })
 	];
   };
 
@@ -150,7 +164,7 @@
   ];
 
   # enable auto update
-  system.autoUpgrade.enable = true;
+  #system.autoUpgrade.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -169,6 +183,12 @@
     kitty
     wezterm
 
+    # gnome
+    #gnome.gnome-tweaks
+    #gnome-extension-manager
+    #gtk-engine-murrine
+    #gnome.gnome-themes-extra
+
     # languages
     nodejs_20
     python3
@@ -180,11 +200,11 @@
     luarocks
     stylua
     luajitPackages.jsregexp
+    rustup
 
     # browsers
-    (librewolf.override { nativeMessagingHosts = [ libsForQt5.plasma-browser-integration ]; })
+    librewolf
     ungoogled-chromium
-    brave
 
     # editors
     neovim
@@ -197,16 +217,21 @@
     thunderbird
     webcord
 
-    #utils
+    # utils
     nwg-look
-    gnome.nautilus
-    blueberry
+    #gnome.nautilus
     jq
     socat
+    pavucontrol
+    blueberry
+    libsForQt5.ark
+    xfce.xfce4-pulseaudio-plugin
 
     # extra
     zathura
     qbittorrent
+    libsForQt5.elisa
+    amberol
 
     # gaming
     gamescope
@@ -217,6 +242,8 @@
     protontricks
 
     # rice
+    catppuccin-gtk
+    catppuccin-cursors.macchiatoDark
     eww-wayland
     hyprpaper
     wofi
@@ -225,7 +252,7 @@
     cliphist
     rofi-wayland
     grimblast
-    slurp
+    pokemon-colorscripts-mac
     ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -253,5 +280,5 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 }
