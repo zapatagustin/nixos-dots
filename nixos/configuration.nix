@@ -52,7 +52,7 @@
   };
 
   # Enable the Desktop Environment.
-  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.xfce.enable = true;
 
   # Configure keymap in X11
@@ -192,7 +192,7 @@
     # languages
     nodejs_20
     python3
-    poetry
+    #poetry
     go
     gopls
     gcc
@@ -226,6 +226,7 @@
     blueberry
     libsForQt5.ark
     xfce.xfce4-pulseaudio-plugin
+    polkit_gnome
 
     # extra
     zathura
@@ -243,9 +244,14 @@
 
     # rice
     catppuccin-gtk
-    catppuccin-cursors.macchiatoDark
+    #catppuccin-cursors.macchiatoDark
+    hackneyed
+    tela-circle-icon-theme
+    wlogout
+    envsubst
     eww-wayland
     hyprpaper
+    swww
     wofi
     waybar
     dunst
