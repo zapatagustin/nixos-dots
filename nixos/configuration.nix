@@ -161,6 +161,7 @@
   # insecure packages
   nixpkgs.config.permittedInsecurePackages = [
     "electron-24.8.6"
+    "electron-19.1.9"
   ];
 
   # enable auto update
@@ -205,6 +206,7 @@
     # browsers
     librewolf
     ungoogled-chromium
+    floorp
 
     # editors
     neovim
@@ -218,6 +220,8 @@
     webcord
 
     # utils
+    ventoy-full
+    etcher
     nwg-look
     #gnome.nautilus
     jq
@@ -241,6 +245,9 @@
     heroic
     protonup-qt
     protontricks
+
+    pcsx2
+    retroarch
 
     # rice
     catppuccin-gtk
