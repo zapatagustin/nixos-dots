@@ -52,13 +52,15 @@
   };
 
   # Enable the Desktop Environment.
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
-    layout = "us";
-    xkbVariant = "dvorak";
+    xkb = {
+        layout = "us";
+        variant = "dvorak";
+      };
   };
 
   # Configure console keymap
@@ -67,22 +69,55 @@
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
-  # Enable sound with pipewire.
   sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
+    alsa = {
+      enable = true;
+      support32Bit = true;
+    };
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
+    wireplumber.configPackages = [
+      (pkgs.writeTextDir "share/wireplumber/wireplumber.conf.d/alsa.conf" ''
+        monitor.alsa.rules = [
+          {
+            matches = [
+              {
+                device.name = "~alsa_card.*"
+              }
+            ]
+            actions = {
+              update-props = {
+                # Device settings
+                api.alsa.use-acp = true
+              }
+            }
+          }
+          {
+            matches = [
+              {
+                node.name = "~alsa_input.pci.*"
+              }
+              {
+                node.name = "~alsa_output.pci.*"
+              }
+            ]
+            actions = {
+            # Node settings
+              update-props = {
+                session.suspend-timeout-seconds = 0
+              }
+            }
+          }
+        ]
+      '')
+    ];
   };
+
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
@@ -94,7 +129,7 @@
   users.users.desktop = {
     isNormalUser = true;
     description = "Desktop";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "audio" ];
     packages = with pkgs; [
     #  firefox
     #  kate
@@ -106,10 +141,11 @@
   nixpkgs.config.allowUnfree = true;
 
   # hyprland
-  programs.hyprland.enable = true;
+  #programs.hyprland.enable = true;
   # Optional, hint electron apps to use wayland:
-  environment.sessionVariables.NIXOS_OZONE_WL = "1";
-
+  #environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  
+  security.pam.services.swaylock = {};
 
   # flakes and optimize storage
     nix.settings = {
@@ -122,18 +158,16 @@
   # enable zram
   zramSwap.enable = true;
 
-  # Enable bluethooth
-  hardware = {
-    bluetooth = {
-        enable = true;
-        powerOnBoot = true;
-        settings.General.Experimental = true;
-    };
-  };
-
   #docker
   virtualisation.docker.enable = true;
   virtualisation.podman.enable = true;
+
+  #vm
+   #virtualisation.virtualbox.host.enable = true;
+   #virtualisation.virtualbox.guest.enable = true;
+   #users.extraGroups.vboxusers.members = [ "desktop" ];
+   #virtualisation.virtualbox.host.enable = true;
+   #virtualisation.virtualbox.host.enableExtensionPack = true;
 
   # Enable flatpak support
   services.flatpak.enable = true;
@@ -158,6 +192,8 @@
   	dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
   };
 
+  programs.steam.gamescopeSession.enable = true;
+
   # insecure packages
   nixpkgs.config.permittedInsecurePackages = [
     "electron-24.8.6"
@@ -167,6 +203,11 @@
   # enable auto update
   #system.autoUpgrade.enable = true;
 
+  programs.java.enable = true; 
+  #programs.steam.package = pkgs.steam.override { withJava = true; };
+
+  programs.partition-manager.enable = true;
+  
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -182,18 +223,22 @@
     ripgrep
     fd
     kitty
-    wezterm
+    ranger
+    delta
+    grcov
 
     # gnome
     #gnome.gnome-tweaks
     #gnome-extension-manager
     #gtk-engine-murrine
     #gnome.gnome-themes-extra
+    #gruvbox-gtk-theme
+    #gruvbox-dark-icons-gtk
 
     # languages
     nodejs_20
     python3
-    #poetry
+    poetry
     go
     gopls
     gcc
@@ -202,44 +247,45 @@
     stylua
     luajitPackages.jsregexp
     rustup
+    python311Packages.pynvim
+    yarn
+    python311Packages.pytest
+    python312Packages.pip
 
     # browsers
+    firefox
     librewolf
     ungoogled-chromium
-    floorp
 
     # editors
-    neovim
-    lazygit
+    lunarvim
     vscode
     jetbrains.idea-community
     jetbrains.pycharm-community
+    #obsidian
+
+    # develop
+    #godot_4
 
     # comunication
     thunderbird
-    webcord
+    vesktop
 
     # utils
+    #bitwarden
+    nvtopPackages.amd
     ventoy-full
-    etcher
-    nwg-look
-    #gnome.nautilus
     jq
     socat
-    pavucontrol
-    blueberry
-    libsForQt5.ark
-    #xfce.xfce4-pulseaudio-plugin
-    #polkit_gnome
+    #pamixer
+    #brightnessctl
+
 
     # extra
     zathura
     qbittorrent
-    libsForQt5.elisa
-    amberol
 
     # gaming
-    gamescope
     wineWow64Packages.waylandFull
     lutris
     heroic
@@ -247,34 +293,29 @@
     protontricks
 
     pcsx2
-    retroarch
+    #retroarch
 
     # rice
-    catppuccin-gtk
-    #catppuccin-cursors.macchiatoDark
-    hackneyed
-    tela-circle-icon-theme
-    wlogout
-    envsubst
-    eww-wayland
-    hyprpaper
-    swww
-    wofi
-    waybar
-    dunst
-    cliphist
-    rofi-wayland
-    grimblast
+    simp1e-cursors
+    #wlogout
+    #envsubst
+    #swww
+    #wofi
+    #dunst
+    #cliphist
+    #rofi-wayland
+    #swappy
+    #grimblast
     pokemon-colorscripts-mac
     ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
+   programs.mtr.enable = true;
+   programs.gnupg.agent = {
+     enable = true;
+     enableSSHSupport = true;
+   };
 
   # List services that you want to enable:
 
