@@ -4,6 +4,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      inputs.nixvim.nixosModules.nixvim
     ];
 
   # Bootloader.
@@ -39,8 +40,7 @@
   };
 
   # Enable the X11 windowing system.
-  services.xserver = {
-    enable = true;
+  services = {
     libinput = {
       enable = true;
 
@@ -52,11 +52,12 @@
   };
 
   # Enable the Desktop Environment.
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
+   enable = true;
     xkb = {
         layout = "us";
         variant = "dvorak";
@@ -124,6 +125,11 @@
 
   # Install the latest kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  security.pam.loginLimits = [
+    { domain = "*"; item = "nofile"; type = "-"; value = "32768"; }
+    { domain = "*"; item = "memlock"; type = "-"; value = "32768"; }
+  ];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.desktop = {
@@ -207,6 +213,8 @@
   #programs.steam.package = pkgs.steam.override { withJava = true; };
 
   programs.partition-manager.enable = true;
+
+  programs.nixvim.enable = true;
   
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -228,29 +236,10 @@
     grcov
 
     # gnome
-    #gnome.gnome-tweaks
-    #gnome-extension-manager
-    #gtk-engine-murrine
-    #gnome.gnome-themes-extra
-    #gruvbox-gtk-theme
-    #gruvbox-dark-icons-gtk
-
-    # languages
-    nodejs_20
-    python3
-    poetry
-    go
-    gopls
-    gcc
-    lua
-    luarocks
-    stylua
-    luajitPackages.jsregexp
-    rustup
-    python311Packages.pynvim
-    yarn
-    python311Packages.pytest
-    python312Packages.pip
+    gnome.gnome-tweaks
+    gnome-extension-manager
+    gtk-engine-murrine
+    gnome.gnome-themes-extra
 
     # browsers
     firefox
@@ -258,7 +247,6 @@
     ungoogled-chromium
 
     # editors
-    lunarvim
     vscode
     jetbrains.idea-community
     jetbrains.pycharm-community
@@ -291,12 +279,13 @@
     heroic
     protonup-qt
     protontricks
-
+    rpcs3
     pcsx2
     #retroarch
 
     # rice
-    simp1e-cursors
+    #simp1e-cursors
+    yaru-theme
     #wlogout
     #envsubst
     #swww
