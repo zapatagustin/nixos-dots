@@ -4,13 +4,13 @@
   inputs,
   ...
 }:
-let
-  neovimconfig = import ../vim;
-  nvim = inputs.nixvim.legacyPackages.x86_64-linux.makeNixvimWithModule {
-    inherit pkgs;
-    module = neovimconfig;
-  };
-in 
+#let
+#  neovimconfig = import ../vim;
+#  nvim = inputs.nixvim.legacyPackages.x86_64-linux.makeNixvimWithModule {
+#    inherit pkgs;
+#    module = neovimconfig;
+#  };
+#in
 {
   home.packages = with pkgs; [
     nvim

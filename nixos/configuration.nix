@@ -4,7 +4,8 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      inputs.nixvim.nixosModules.nixvim
+      ./gruvbox.nix
+      #inputs.nixvim.nixosModules.nixvim
     ];
 
   # Bootloader.
@@ -52,8 +53,8 @@
   };
 
   # Enable the Desktop Environment.
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
   # Configure keymap in X11
   services.xserver = {
@@ -70,7 +71,6 @@
   # Enable CUPS to print documents.
   services.printing.enable = true;
 
-  sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -126,11 +126,6 @@
   # Install the latest kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  security.pam.loginLimits = [
-    { domain = "*"; item = "nofile"; type = "-"; value = "32768"; }
-    { domain = "*"; item = "memlock"; type = "-"; value = "32768"; }
-  ];
-
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.desktop = {
     isNormalUser = true;
@@ -150,8 +145,10 @@
   #programs.hyprland.enable = true;
   # Optional, hint electron apps to use wayland:
   #environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  systemd.targets.hibernate.enable = false;
   
-  security.pam.services.swaylock = {};
+  #security.pam.services.swaylock = {};
 
   # flakes and optimize storage
     nix.settings = {
@@ -165,8 +162,8 @@
   zramSwap.enable = true;
 
   #docker
-  virtualisation.docker.enable = true;
-  virtualisation.podman.enable = true;
+  #virtualisation.docker.enable = true;
+  #virtualisation.podman.enable = true;
 
   #vm
    #virtualisation.virtualbox.host.enable = true;
@@ -184,14 +181,6 @@
   # enable custom fonts
   fonts.fontDir.enable = true;
 
-  fonts = {
-  	packages = with pkgs; [
-		jetbrains-mono
-		cascadia-code
- 	 	(nerdfonts.override { fonts = [ "FiraCode" ]; })
-	];
-  };
-
   programs.steam = {
   	enable = true;
   	remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
@@ -200,22 +189,16 @@
 
   programs.steam.gamescopeSession.enable = true;
 
-  # insecure packages
-  nixpkgs.config.permittedInsecurePackages = [
-    "electron-24.8.6"
-    "electron-19.1.9"
-  ];
-
   # enable auto update
   #system.autoUpgrade.enable = true;
 
-  programs.java.enable = true; 
+  #programs.java.enable = true; 
   #programs.steam.package = pkgs.steam.override { withJava = true; };
 
   programs.partition-manager.enable = true;
 
-  programs.nixvim.enable = true;
-  
+  #programs.nixvim.enable = true;
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -235,22 +218,39 @@
     delta
     grcov
 
+    gnumake
+    cmake
+    nixpkgs-fmt
+    clang
+    gcc
+    libtool
+
     # gnome
-    gnome.gnome-tweaks
-    gnome-extension-manager
-    gtk-engine-murrine
-    gnome.gnome-themes-extra
+    #gnome.gnome-tweaks
+    #gnome-extension-manager
+    #gtk-engine-murrine
+    #gnome.gnome-themes-extra
 
     # browsers
-    firefox
-    librewolf
-    ungoogled-chromium
+    #firefox
+    floorp
+    brave
 
     # editors
     vscode
-    jetbrains.idea-community
-    jetbrains.pycharm-community
+    emacs
+    #jetbrains.idea-community
+    #jetbrains.pycharm-community
     #obsidian
+
+    (aspellWithDicts (dicts: with dicts; [
+      en
+      en-computers
+      en-science
+      es
+    ]))
+
+    strawberry-qt6
 
     # develop
     #godot_4
@@ -268,7 +268,6 @@
     #pamixer
     #brightnessctl
 
-
     # extra
     zathura
     qbittorrent
@@ -285,7 +284,7 @@
 
     # rice
     #simp1e-cursors
-    yaru-theme
+    #yaru-theme
     #wlogout
     #envsubst
     #swww
@@ -309,7 +308,7 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
